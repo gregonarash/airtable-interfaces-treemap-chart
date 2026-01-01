@@ -4,6 +4,7 @@ import {
   useCustomProperties,
   useColorScheme,
   colorUtils,
+  expandRecord,
 } from "@airtable/blocks/interface/ui";
 import type { Field } from "@airtable/blocks/interface/models";
 import { ResponsiveTreeMap } from "@nivo/treemap";
@@ -34,6 +35,18 @@ export function TreemapChart() {
   const groupByField = customPropertyValueByKey.groupByField as
     | Field
     | undefined;
+
+  const handleNodeClick = (node: { id: string; isLeaf?: boolean }) => {
+    if (!node.isLeaf || !labelField) return;
+
+    const matchingRecord = records.find(
+      (record) => record.getCellValueAsString(labelField) === node.id
+    );
+
+    if (matchingRecord) {
+      expandRecord(matchingRecord);
+    }
+  };
 
   const treemapData = useMemo<TreemapNode>(() => {
     if (!labelField || !valueField || !records.length) {
@@ -205,6 +218,7 @@ export function TreemapChart() {
           colors={{ scheme: "nivo" }}
           nodeOpacity={0.5}
           borderWidth={2}
+          onClick={handleNodeClick}
           //margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
           //   theme={{
           //     text: {
